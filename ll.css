@@ -1,0 +1,63 @@
+*
+{
+
+}
+
+body
+{
+    background-color: #ff69d1;
+}
+
+h1
+{
+
+}
+
+.title
+{
+    text-align: center;
+    color: #17ff00;
+    font-family: cursive;
+}
+
+.console
+{
+    padding-left: 60px;
+    margin: 30px 0px;
+}
+
+.consoleinput
+{
+    margin: 0px 7px;
+}
+
+.consolebtn
+{
+
+}
+
+.insertbtn
+{
+
+}
+
+.resetbtn
+{
+
+}
+
+.clearbtn
+{
+
+}
+
+section
+{
+    
+}
+
+.display
+{
+    height: 70vh;
+    background-color: deepskyblue;
+}

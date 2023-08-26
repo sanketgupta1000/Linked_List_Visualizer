@@ -51,13 +51,31 @@ h1
 
 }
 
-section
+svg
 {
-    
+
 }
 
-.display
+#main-svg
 {
-    height: 70vh;
-    background-color: deepskyblue;
+    width: 1200px;
+    height: 500px;
+}
+
+#main-svg>rect
+{
+    height: 100%;
+    width: 100%;
+    fill: deepskyblue;
+}
+
+circle
+{
+    fill: deeppink;
+}
+
+text
+{
+    font-size: 24px;
+    fill: white;
 }

@@ -1,11 +1,12 @@
 *
 {
-
+    
 }
 
 body
 {
     background-color: #ff69d1;
+    font-family: cursive;
 }
 
 h1
@@ -17,7 +18,6 @@ h1
 {
     text-align: center;
     color: #17ff00;
-    font-family: cursive;
 }
 
 .console
@@ -72,6 +72,8 @@ svg
 circle
 {
     fill: deeppink;
+    stroke: #16f500;
+    stroke-width: 4;
 }
 
 text

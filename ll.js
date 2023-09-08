@@ -162,7 +162,7 @@ class LinkedList
 
         //now iterating over linked list and adding in dom
         let xstart=92;
-        let r=20;
+        let r=25;
         let ptr = this.head;
         while(ptr!=null)
         {
@@ -170,7 +170,7 @@ class LinkedList
             this.parent.lastChild.remove();
 
             let newcircle = `<circle cx="${xstart+r}" cy="${y-4}" r="${r}"></circle>`;
-            let newdata = `<text x="${xstart+r}" y="${y}" text-anchor="middle">${ptr.data}</text>`;
+            let newdata = `<text x="${xstart+r}" y="${y+3}" text-anchor="middle">${ptr.data}</text>`;
             let newarrow = `<text x="${xstart+r+r}" y="${y}">&#8594;</text>`;
             let newnull = `<text x="${xstart+r+r+25}" y="${y}">NULL</text>`;
 

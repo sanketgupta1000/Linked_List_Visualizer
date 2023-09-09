@@ -15,10 +15,13 @@ class Node
 
 class LinkedList
 {
-    constructor(console, parent)
+    constructor(listconsole, listalgos, parent)
     {
         //saving element where to display buttons
-        this.console = console;
+        this.listconsole = listconsole;
+
+        //saving element where to display algorithms
+        this.listalgos = listalgos;
 
         //saving element where to display linked list
         this.parent = parent;
@@ -27,7 +30,7 @@ class LinkedList
         this.head = null;
         this.size = 0;
 
-        //buttons/fields related to linked list
+        //buttons/fields related to linked list manipulation
 
         //creating input field
         this.userinput = document.createElement("input");
@@ -74,20 +77,48 @@ class LinkedList
             this.show();
         });
 
+        //creating button for traversal
+        this.traversebtn = document.createElement("input");
+        this.traversebtn.type = "button";
+        this.traversebtn.classList = "algobtn traversebtn";
+        this.traversebtn.id = "traversebtn";
+        this.traversebtn.value = "Traversal";
+        //adding event listener to it
+        this.traversebtn.addEventListener("click", (click)=>{
+            this.showTraversal();
+        })
+
         //now calling method to display the input fields
-        this.displaygui();
+        this.displayGui();
+
+        //calling method to display buttons for algorithms
+        this.displayAlgos();
 
         //calling show method to show empty linked list
         this.show();
     }
 
     //method to display input fields
-    displaygui()
+    displayGui()
     {
         //creating a document fragment
         let tempconsole = new DocumentFragment();
         tempconsole.append(this.userinput, this.insertbtn, this.deletebtn,  this.clearbtn);
-        this.console.append(tempconsole);
+        this.listconsole.append(tempconsole);
+    }
+
+    //method to display algorithms
+    displayAlgos()
+    {
+        let algoitem = document.createElement("li");
+        algoitem.classList="algoitem";
+        algoitem.appendChild(this.traversebtn);
+
+        //creating document fragment
+        let listitem = new DocumentFragment();
+        listitem.append(algoitem);
+
+        this.listalgos.append(listitem);
     }
 
     //now defining methods to manipulate linked list in memory
@@ -152,7 +183,7 @@ class LinkedList
     {
         //creating initial text to be displayed
         let y=50;
-        let inittext = `<rect x="0" y="0"></rect><text x="50" y="${y}">H&#8594;</text><text x="90" y="${y}">NULL</text>`;
+        let inittext = `<rect x="0" y="0"></rect><text class="whitetxt" x="50" y="${y}">H&#8594;</text><text class="whitetxt" x="90" y="${y}">NULL</text>`;
 
         //now emptying the parent
         this.parent.replaceChildren();
@@ -164,21 +195,99 @@ class LinkedList
         let xstart=92;
         let r=25;
         let ptr = this.head;
+        let index = 0;
         while(ptr!=null)
         {
             //replacing last appended NULL in dom with the element
             this.parent.lastChild.remove();
 
-            let newcircle = `<circle cx="${xstart+r}" cy="${y-4}" r="${r}"></circle>`;
-            let newdata = `<text x="${xstart+r}" y="${y+3}" text-anchor="middle">${ptr.data}</text>`;
-            let newarrow = `<text x="${xstart+r+r}" y="${y}">&#8594;</text>`;
-            let newnull = `<text x="${xstart+r+r+25}" y="${y}">NULL</text>`;
+            let newcircle = `<circle cx="${xstart+r}" cy="${y-4}" r="${r}" id="Node${index++}"></circle>`;
+            let newdata = `<text class="whitetxt" x="${xstart+r}" y="${y+3}" text-anchor="middle">${ptr.data}</text>`;
+            let newarrow = `<text class="whitetxt" x="${xstart+r+r}" y="${y}">&#8594;</text>`;
+            let newnull = `<text class="whitetxt" x="${xstart+r+r+25}" y="${y}">NULL</text>`;
 
             this.parent.insertAdjacentHTML("beforeend", newcircle+newdata+newarrow+newnull);
 
             xstart += (r+r+25);
 
             ptr = ptr.next;
+        }
+    }
+
+    //method to show traversal through svg animation
+    showTraversal()
+    {
+        //first showing the linked list to make sure all ids are correct
+        this.show();
+
+        //showing "Output" text on screen
+        this.parent.insertAdjacentHTML("beforeend", `<text class="whitetxt" x="50" y="200">Output:</text>`);
+
+        //declaring necessary variables to help synchronize animations
+        let dur = 1;
+        let index = 0;
+
+        //variables to help in printing output
+        let y=230;
+        let x=50;
+        let margin=50;
+
+        //appending a dummy animation element to help in synchronizing time
+        let dummyset = `<set
+                            begin="999999999"
+                            dur="${dur}s"
+                            id="Node-1anim"
+                        ></set>`;
+        this.parent.insertAdjacentHTML("beforeend", dummyset);
+
+        document.getElementById("Node-1anim").beginElement();
+
+        //now traversing list in memory, and adding animation elements on dom
+        let ptr = this.head;
+        while(ptr!=null)
+        {
+            //declaring set svg element for animation
+            let setanim = `<set
+                                xlink:href="#Node${index}"
+                                attributeName="fill"
+                                attributeType="CSS"
+                                from="deeppink"
+                                to="orangered"
+                                dur="${dur}s"
+                                id="Node${index}anim"
+                                begin="Node${index-1}anim.end+0s"
+                            ></set>`;
+            //appending in DOM
+            this.parent.insertAdjacentHTML("beforeend", setanim);
+
+            //to show actual output on screen
+            let out = `<text
+                            x="${x}"
+                            y="${y}"
+                            class="outtxt"
+                            id="data${index}">
+                            ${ptr.data}
+                        </text>`;
+
+            //set element for revealing the output on time
+            let outset = `<set
+                                xlink:href="#data${index}"
+                                attributeName="fill"
+                                attributeType="CSS"
+                                from="none"
+                                to="white"
+                                dur="${dur}"
+                                begin="Node${index}anim.begin"
+                                fill="freeze"></set>`
+
+            this.parent.insertAdjacentHTML("beforeend", out);
+            this.parent.insertAdjacentHTML("beforeend", outset);
+
+            x+=margin;
+
+            index++;
+
+            ptr = (ptr.next);
         }
     }
 
@@ -199,6 +308,13 @@ class LinkedList
 };
 
 //driver code
+
+//accessing the DOM elements where to display controls for manipulating linked list
 let listconsole = document.querySelector(".console");
+let listalgos = document.getElementById("ll1algolist");
+
+//accessing SVG element to draw linked list in
 let svg = document.getElementById("main-svg");
-let linkedlist = new LinkedList(listconsole, svg);
+
+//creating object
+let linkedlist = new LinkedList(listconsole, listalgos, svg);

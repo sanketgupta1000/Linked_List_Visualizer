@@ -56,13 +56,53 @@ svg
 
 }
 
-#main-svg
+.llcontainer
 {
-    width: 1200px;
-    height: 500px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap-reverse;
+    justify-content: space-around;
 }
 
-#main-svg>rect
+#ll1container
+{
+
+}
+
+.llcont-item
+{
+    
+}
+
+/* #main-svg */
+.display
+{
+    width: 76%;
+    /* height: 500px; */
+}
+
+.llalgo
+{
+
+}
+
+.llalgolist
+{
+
+}
+
+.algoitem
+{
+
+}
+
+.algobtn
+{
+    
+}
+
+/* #main-svg>rect */
+.display>rect
 {
     height: 100%;
     width: 100%;
@@ -79,5 +119,14 @@ circle
 text
 {
     font-size: 24px;
+}
+
+.whitetxt
+{
     fill: white;
+}
+
+.outtxt
+{
+    fill: none;
 }

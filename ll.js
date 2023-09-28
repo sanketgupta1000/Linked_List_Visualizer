@@ -86,7 +86,15 @@ class LinkedList
         //adding event listener to it
         this.traversebtn.addEventListener("click", (click)=>{
             this.showTraversal();
-        })
+        });
+
+        //creating data to help in printing as well as showing traversal
+        this.circleidprefix = "Circle";
+        this.x = 50;
+        this.y = 25;
+        this.r = 50;
+        this.dur = 1.5;
+        this.linkedlistid = "ll";
 
         //now calling method to display the input fields
         this.displayGui();
@@ -181,18 +189,33 @@ class LinkedList
 
     show()
     {
-        //creating initial text to be displayed
-        let y=50;
-        let inittext = `<rect x="0" y="0"></rect><text class="whitetxt" x="50" y="${y}">H&#8594;</text><text class="whitetxt" x="90" y="${y}">NULL</text>`;
-
-        //now emptying the parent
+        //emptying the parent
         this.parent.replaceChildren();
+        
+        //filling it with a coloured rectangle
+        let fillrect = new SVGRect({
+            x:0,
+            y:0
+        });
+        fillrect.show(this.parent);
+        
+        //creating group to display the linked list
+        let ll = new SVGGroup({id: this.linkedlistid});
+
+        let inittext = new SVGText({
+            class: "whitetxt",
+            x: this.x,
+            y: this.y
+        });
+        inittext.setTextContent("H")
+
+
 
         //showing the initial configuration of linked list
         this.parent.insertAdjacentHTML("beforeend", inittext);
 
         //now iterating over linked list and adding in dom
-        let xstart=92;
+        let xstart=;
         let r=25;
         let ptr = this.head;
         let index = 0;

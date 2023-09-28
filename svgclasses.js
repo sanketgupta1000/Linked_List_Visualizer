@@ -82,7 +82,7 @@ class SVGGroup extends SVGBase
     //method to add its children svg elements
     add()
     {
-        for(let ele in arguments)
+        for(let ele of arguments)
         {
             if(ele instanceof SVGBase)
             {
@@ -136,7 +136,7 @@ class SVGRect extends SVGBase
 class SVGText extends SVGBase
 {
     //call like this: ({attribute1: value1, attribute2: value2, ...})
-    //or this: (t), where t represents an SVGElement corresponding to a text
+    //or this: (t, anchor), where t represents an SVGElement corresponding to a text, and anchor is a string representing text-anchor 
     constructor()
     {
         if(arguments[0] instanceof SVGTextElement)
@@ -146,12 +146,13 @@ class SVGText extends SVGBase
         else
         {
             super("text", arguments[0]);
+            this.data.setAttribute("text-anchor", arguments[1]);
         }
     }
 
     //method to set text content
     setTextContent(d)
     {
-        this.data.textContent = d;
+        this.data.appendChild(document.createTextNode(d));
     }
 };

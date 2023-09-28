@@ -90,11 +90,13 @@ class LinkedList
 
         //creating data to help in printing as well as showing traversal
         this.circleidprefix = "Circle";
+        this.nodeidprefix = "Node";
         this.x = 50;
-        this.y = 25;
-        this.r = 50;
+        this.y = 50;
+        this.r = 25;
         this.dur = 1.5;
         this.linkedlistid = "ll";
+        this.ptranimid = "ptranim";
 
         //now calling method to display the input fields
         this.displayGui();
@@ -206,35 +208,63 @@ class LinkedList
             class: "whitetxt",
             x: this.x,
             y: this.y
-        });
-        inittext.setTextContent("H")
-
-
-
-        //showing the initial configuration of linked list
-        this.parent.insertAdjacentHTML("beforeend", inittext);
+        }, "left");
+        inittext.setTextContent("H\u2192");
+        ll.add(inittext);
 
         //now iterating over linked list and adding in dom
-        let xstart=;
-        let r=25;
+        let xstart=this.x+42;
         let ptr = this.head;
         let index = 0;
         while(ptr!=null)
         {
-            //replacing last appended NULL in dom with the element
-            this.parent.lastChild.remove();
+            //creating a circle
+            let circle = new SVGCircle({
+                cx: xstart+this.r,
+                cy: this.y-4,
+                r: this.r,
+                id: this.circleidprefix+(index)
+            });
 
-            let newcircle = `<circle cx="${xstart+r}" cy="${y-4}" r="${r}" id="Node${index++}"></circle>`;
-            let newdata = `<text class="whitetxt" x="${xstart+r}" y="${y+3}" text-anchor="middle">${ptr.data}</text>`;
-            let newarrow = `<text class="whitetxt" x="${xstart+r+r}" y="${y}">&#8594;</text>`;
-            let newnull = `<text class="whitetxt" x="${xstart+r+r+25}" y="${y}">NULL</text>`;
+            //text to display in the circle
+            let v = new SVGText({
+                x: xstart+this.r,
+                y: this.y+4,
+                class: "whitetxt",
+            }, "middle");
+            v.setTextContent(ptr.data);
 
-            this.parent.insertAdjacentHTML("beforeend", newcircle+newdata+newarrow+newnull);
+            //arrow
+            let rarrow = new SVGText({
+                x: xstart+this.r+this.r,
+                y: this.y,
+                class: "whitetxt"
+            }, "left");
+            rarrow.setTextContent("\u2192");
 
-            xstart += (r+r+25);
+            //node
+            let node = new SVGGroup({id: this.nodeidprefix+index});
+            node.add(circle, v);
 
+            //adding in group of linked list
+            ll.add(node, rarrow);
+
+            xstart+=(this.r+this.r+25);
+            index++;
             ptr = ptr.next;
         }
+
+        //adding null pointer in group
+        let nulltext = new SVGText({
+            x: xstart,
+            y: this.y,
+            class: "whitetxt"
+        }, "left");
+        nulltext.setTextContent("NULL");
+        ll.add(nulltext);
+
+        //showing the linked list
+        ll.show(this.parent);
     }
 
     //method to show traversal through svg animation
@@ -243,118 +273,106 @@ class LinkedList
         //first showing the linked list to make sure all ids are correct
         this.show();
 
-        //variables to help in showing pointer
-        let y_of_ptr=90;
-        let x_of_ptr=118;
+        //creating pointer
+        let arrowx = this.x+60;
+        let arrowy = this.y+40;
+        let ptrx = arrowx+7;
+        let ptry = arrowy+25;
+        let uparr = new SVGText({
+            x: arrowx,
+            y: arrowy,
+            class: "whitetxt"
+        }, "left");
+        uparr.setTextContent("\u2191");
+        let ptrtext = new SVGText({
+            x: ptrx,
+            y: ptry,
+            class: "whitetxt"
+        }, "middle");
+        ptrtext.setTextContent("PTR");
+        let pointer = new SVGGroup({id: "pointer"});
+        pointer.add(uparr, ptrtext);
 
-        //variables to help in moving pointer
-        let ptrdist = 75;
+        //adding animation to pointer
+        let ptranim = pointer.animateTransform({
+            attributeName: "transform",
+            attributeType: "XML",
+            type: "translate",
+            additive: "sum",
+            from: "0",
+            to: this.r+25+this.r,
+            accumulate: "sum",
+            repeatCount: this.size,
+            begin: "indefinite",
+            dur: this.dur,
+            keyTimes: "0; 0.2; 1",
+            values: "0; 0; "+(this.r+25+this.r),
+            fill: "freeze",
+            id: this.ptranimid
+        });
 
-        //duration of ptr movement
-        let dur=1.5;
+        //adding pointer in dom
+        pointer.show(this.parent);
 
-        //elements to show moving pointer on screen
-        //arrow
-        let arrow = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        arrow.setAttributeNS(null, "x", x_of_ptr);
-        arrow.setAttributeNS(null, "y", y_of_ptr);
-        arrow.appendChild(document.createTextNode("\u2191"));
-        arrow.classList.add("whitetxt");
-        // text PTR
-        let ptrtext = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        ptrtext.setAttributeNS(null, "x", x_of_ptr);
-        ptrtext.setAttributeNS(null, "y", y_of_ptr+25);
-        ptrtext.appendChild(document.createTextNode("PTR"));
-        ptrtext.classList.add("whitetxt");
-        //group to contain both
-        let pointer = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        pointer.id = "pointer";
-        pointer.setAttributeNS(null, "text-anchor", "middle");
+        //now adding color change animation for circles
+        for(let i = 0, animoffset = 0; i<this.size; i++, animoffset+=this.dur)
+        {
+            let circle = new SVGCircle(document.getElementById(this.circleidprefix+i));
+            circle.set({
+                attributeName: "fill",
+                from: "deeppink",
+                to: "orangered",
+                dur: "0.3s",
+                begin: this.ptranimid+".begin+"+animoffset+"s"
+            });
+        }
 
-        //adding in group
-        pointer.append(arrow, ptrtext);
-
-        //creating animation for pointer
-        let ptranim = document.createElementNS("http://www.w3.org/2000/svg", "animateTransform");
-        ptranim.setAttributeNS(null, "attributeName", "transform");
-        ptranim.setAttributeNS(null, "attributeType", "XML");
-        ptranim.setAttributeNS(null, "type", "translate");
-        ptranim.setAttributeNS(null, "from", "0");
-        ptranim.setAttributeNS(null, "to", ptrdist);
-        ptranim.setAttributeNS(null, "dur", dur+"s");
-        ptranim.setAttributeNS(null, "additive", "sum");
-        ptranim.setAttributeNS(null, "repeatCount", this.size);
-        ptranim.setAttributeNS(null, "begin", "indefinite");
-        ptranim.setAttributeNS(null, "accumulate", "sum");
-        ptranim.setAttributeNS(null, "keyTimes", "0; 0.2; 1");
-        ptranim.setAttributeNS(null, "values", `0; 0; ${ptrdist}`);
-        ptranim.setAttributeNS(null, "fill", "freeze");
-        ptranim.id = "ptranim";
-
-        //adding animation on group
-        pointer.appendChild(ptranim);
-
-        //adding pointer in DOM
-        this.parent.appendChild(pointer);
-
-        //now will add animation to change color of node everytime pointer points it
-        let currsize = this.size;
+        //now displaying output on screen
+        let ptr = this.head;
         let animoffset = 0;
-        for(let i = 0; i<currsize; i++, animoffset+=dur)
+        let outx = this.x + 50;
+        let outy = this.y + 200;
+        let outoffsetx = 70;
+        let outputtxt = new SVGText({
+            id: "outputtxt",
+            x: outx,
+            y: this.y+150,
+            class: "whitetxt"
+        });
+        outputtxt.setTextContent("Output:");
+        outputtxt.show(this.parent);
+
+        let outputgroup = new SVGGroup({id: "output"});
+        while(ptr!=null)
         {
-            let coloranim = `<set
-                                xlink:href="#Node${i}"
-                                attributeName="fill"
-                                from="deeppink"
-                                to="orangered"
-                                dur="0.6s"
-                                begin="ptranim.begin+${animoffset}s"
-                            >
-                            </set>`
-            this.parent.insertAdjacentHTML("beforeend", coloranim);
+            let text = new SVGText({
+                x: outx,
+                y: outy,
+                class: "outtxt"
+            }, "left");
+            text.setTextContent(ptr.data);
+            text.set({
+                attributeName: "fill",
+                from: "none",
+                to: "white",
+                dur: "0.1s",
+                begin: this.ptranimid+".begin+"+animoffset+"s",
+                fill: "freeze"
+            });
+            outputgroup.add(text);
+            animoffset+=this.dur;
+            outx+=outoffsetx;
+            ptr = ptr.next;
         }
 
-        //adding output text as well as animation for it
-        animoffset = 0;
-        let outy = 150;
-        let outx = x_of_ptr;
-        let outxoffset = 50;
-        let outtext = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        outtext.setAttributeNS(null, "x", outx);
-        outtext.setAttributeNS(null, "y", outy);
-        outtext.setAttributeNS(null, "text-anchor", "middle");
-        outtext.classList.add("whitetxt");
-        outtext.appendChild(document.createTextNode("Output:"));
-        this.parent.appendChild(outtext);
-        //now traversing list in memory
-        for(let i = 0, ptr = this.head; ptr!=null; (ptr=(ptr.next)), i++, (animoffset+=dur))
-        {
-            let textele = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            textele.setAttributeNS(null, "x", outx+(i*outxoffset));
-            textele.setAttributeNS(null, "y", outy+50);
-            textele.classList.add("outtxt");
-            textele.id = `Out${i}`;
-            textele.appendChild(document.createTextNode(ptr.data));
-
-            let textanim = `<set
-                                xlink:href="#Out${i}"
-                                attributeName="fill"
-                                from="none"
-                                to="white"
-                                dur="0.5s"
-                                fill="freeze"
-                                begin="ptranim.begin+${animoffset}s"
-                            >
-                            </set>`;
-            
-            this.parent.appendChild(textele);
-            this.parent.insertAdjacentHTML("beforeend", textanim);
-        }
+        //showing output
+        outputgroup.show(this.parent);
 
         //starting animation
         if(this.size)
         {
             ptranim.beginElement();
+            
         }
     }
 

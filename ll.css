@@ -81,6 +81,14 @@ svg
     /* height: 500px; */
 }
 
+@media(max-width:476px)
+{
+    .display
+    {
+        width: 100%;
+    }
+}
+
 .llalgo
 {
 

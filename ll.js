@@ -47,7 +47,7 @@ class LinkedList
         //adding event listener on it
         this.insertbtn.addEventListener("click", (click)=>{
             this.addNode(Number(this.userinput.value));
-            this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+            this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
         });
         
         //creating delete button
@@ -59,7 +59,7 @@ class LinkedList
         //adding event listener on it
         this.deletebtn.addEventListener("click", (click)=>{
             this.deleteNode(Number(this.userinput.value));
-            this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+            this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
         });
         
         //creating clear button
@@ -74,7 +74,7 @@ class LinkedList
             {
                 this.deleteNode(0);
             }
-            this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+            this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
         });
 
         //creating button for traversal
@@ -105,7 +105,7 @@ class LinkedList
         this.displayAlgos();
 
         //calling show method to show empty linked list
-        this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+        this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
     }
 
     //method to display input fields
@@ -189,47 +189,45 @@ class LinkedList
 
     //now defining method to show linked list in svg
 
-    show()
+    show(container, start, end, startx, starty, nodeid, circleid, gid)
     {
-        //emptying the parent
-        this.parent.replaceChildren();
-        
-        //filling it with a coloured rectangle
-        let fillrect = new SVGRect({
-            x:0,
-            y:0
-        });
-        fillrect.show(this.parent);
+        //emptying the container to display linked list in
+        container.replaceChildren();
         
         //creating group to display the linked list
-        let ll = new SVGGroup({id: this.linkedlistid});
+        let ll = new SVGGroup({id: gid});
 
         let inittext = new SVGText({
             class: "whitetxt",
-            x: this.x,
-            y: this.y
+            x: startx,
+            y: starty
         }, "left");
         inittext.setTextContent("H\u2192");
         ll.add(inittext);
 
         //now iterating over linked list and adding in dom
-        let xstart=this.x+42;
+        let xstart=startx+42;
         let ptr = this.head;
         let index = 0;
-        while(ptr!=null)
+        while(index<start)
+        {
+            ptr = (ptr.next);
+            index++;
+        }
+        while((ptr!=null)&&(index<=end))
         {
             //creating a circle
             let circle = new SVGCircle({
                 cx: xstart+this.r,
-                cy: this.y-4,
+                cy: starty-4,
                 r: this.r,
-                id: this.circleidprefix+(index)
+                id: circleid+(index)
             });
 
             //text to display in the circle
             let v = new SVGText({
                 x: xstart+this.r,
-                y: this.y+4,
+                y: starty+4,
                 class: "whitetxt",
             }, "middle");
             v.setTextContent(ptr.data);
@@ -237,13 +235,13 @@ class LinkedList
             //arrow
             let rarrow = new SVGText({
                 x: xstart+this.r+this.r,
-                y: this.y,
+                y: starty,
                 class: "whitetxt"
             }, "left");
             rarrow.setTextContent("\u2192");
 
             //node
-            let node = new SVGGroup({id: this.nodeidprefix+index});
+            let node = new SVGGroup({id: nodeid+index});
             node.add(circle, v);
 
             //adding in group of linked list
@@ -257,21 +255,21 @@ class LinkedList
         //adding null pointer in group
         let nulltext = new SVGText({
             x: xstart,
-            y: this.y,
+            y: starty,
             class: "whitetxt"
         }, "left");
         nulltext.setTextContent("NULL");
         ll.add(nulltext);
 
         //showing the linked list
-        ll.show(this.parent);
+        ll.show(container);
     }
 
     //method to show traversal through svg animation
     showTraversal()
     {
         //first showing the linked list to make sure all ids are correct
-        this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+        this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
 
         //creating pointer
         let arrowx = this.x+60;
@@ -338,7 +336,7 @@ class LinkedList
             x: outx,
             y: this.y+150,
             class: "whitetxt"
-        });
+        }, "left");
         outputtxt.setTextContent("Output:");
         outputtxt.show(this.parent);
 

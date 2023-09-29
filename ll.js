@@ -47,7 +47,7 @@ class LinkedList
         //adding event listener on it
         this.insertbtn.addEventListener("click", (click)=>{
             this.addNode(Number(this.userinput.value));
-            this.show();
+            this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
         });
         
         //creating delete button
@@ -59,7 +59,7 @@ class LinkedList
         //adding event listener on it
         this.deletebtn.addEventListener("click", (click)=>{
             this.deleteNode(Number(this.userinput.value));
-            this.show();
+            this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
         });
         
         //creating clear button
@@ -74,7 +74,7 @@ class LinkedList
             {
                 this.deleteNode(0);
             }
-            this.show();
+            this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
         });
 
         //creating button for traversal
@@ -105,7 +105,7 @@ class LinkedList
         this.displayAlgos();
 
         //calling show method to show empty linked list
-        this.show();
+        this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
     }
 
     //method to display input fields
@@ -271,7 +271,7 @@ class LinkedList
     showTraversal()
     {
         //first showing the linked list to make sure all ids are correct
-        this.show();
+        this.show(this.parent, 0, this.size-1, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
 
         //creating pointer
         let arrowx = this.x+60;

@@ -88,6 +88,17 @@ class LinkedList
             this.showTraversal();
         });
 
+        //creating button for mergesort
+        this.mergesortbtn = document.createElement("input");
+        this.mergesortbtn.type = "button";
+        this.mergesortbtn.classList.add("algobtn", "mergesortbtn");
+        this.mergesortbtn.id = "mergesortbtn";
+        this.mergesortbtn.value = "Merge Sort";
+        //adding event listener to it
+        this.mergesortbtn.addEventListener("click", (click)=>{
+            this.mergeSort(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+        });
+
         //creating data to help in printing as well as showing traversal
         this.circleidprefix = "Circle";
         this.nodeidprefix = "Node";
@@ -122,13 +133,15 @@ class LinkedList
     {
         let algoitem = document.createElement("li");
         algoitem.classList="algoitem";
-        algoitem.appendChild(this.traversebtn);
+        algoitem.append(this.traversebtn);
 
-        //creating document fragment
-        let listitem = new DocumentFragment();
-        listitem.append(algoitem);
+        this.listalgos.append(algoitem);
 
-        this.listalgos.append(listitem);
+        let algoitem2 = document.createElement("li");
+        algoitem2.classList="algoitem";
+        algoitem2.append(this.mergesortbtn);
+
+        this.listalgos.append(algoitem2);
     }
 
     //now defining methods to manipulate linked list in memory
@@ -372,6 +385,12 @@ class LinkedList
             ptranim.beginElement();
             
         }
+    }
+
+    //method to show merge sort
+    mergeSort(container, start, end, startx, starty, nodeid, circleid, gid)
+    {
+        
     }
 
     //method to console log list for debugging

@@ -47,7 +47,7 @@ class LinkedList
         //adding event listener on it
         this.insertbtn.addEventListener("click", (click)=>{
             this.addNode(Number(this.userinput.value));
-            this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+            this.show(this.parent, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid, this.head);
         });
         
         //creating delete button
@@ -59,7 +59,7 @@ class LinkedList
         //adding event listener on it
         this.deletebtn.addEventListener("click", (click)=>{
             this.deleteNode(Number(this.userinput.value));
-            this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+            this.show(this.parent, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid, this.head);
         });
         
         //creating clear button
@@ -74,7 +74,7 @@ class LinkedList
             {
                 this.deleteNode(0);
             }
-            this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+            this.show(this.parent, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid), this.head;
         });
 
         //creating button for traversal
@@ -96,7 +96,11 @@ class LinkedList
         this.mergesortbtn.value = "Merge Sort";
         //adding event listener to it
         this.mergesortbtn.addEventListener("click", (click)=>{
-            this.mergeSort(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+            this.parent.replaceChildren();
+            let animobj = this.mergeSort(this.head, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid, 0);
+            this.head = animobj.headlink;
+            animobj.driveranim.beginElement();
+            this.logList();
         });
 
         //creating data to help in printing as well as showing traversal
@@ -116,7 +120,7 @@ class LinkedList
         this.displayAlgos();
 
         //calling show method to show empty linked list
-        this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+        this.show(this.parent, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid, this.head);
     }
 
     //method to display input fields
@@ -202,10 +206,13 @@ class LinkedList
 
     //now defining method to show linked list in svg
 
-    show(container, start, end, startx, starty, nodeid, circleid, gid)
+    show(container, startx, starty, nodeid, circleid, gid, startptr, shouldempty=true)
     {
         //emptying the container to display linked list in
-        container.replaceChildren();
+        if(shouldempty)
+        {
+            container.replaceChildren();
+        }
         
         //creating group to display the linked list
         let ll = new SVGGroup({id: gid});
@@ -220,14 +227,9 @@ class LinkedList
 
         //now iterating over linked list and adding in dom
         let xstart=startx+42;
-        let ptr = this.head;
+        let ptr = startptr;
         let index = 0;
-        while(index<start)
-        {
-            ptr = (ptr.next);
-            index++;
-        }
-        while((ptr!=null)&&(index<=end))
+        while((ptr!=null))
         {
             //creating a circle
             let circle = new SVGCircle({
@@ -282,7 +284,7 @@ class LinkedList
     showTraversal()
     {
         //first showing the linked list to make sure all ids are correct
-        this.show(this.parent, 0, this.size-1, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid);
+        this.show(this.parent, this.x, this.y, this.nodeidprefix, this.circleidprefix, this.linkedlistid, this.head);
 
         //creating pointer
         let arrowx = this.x+60;
@@ -388,9 +390,456 @@ class LinkedList
     }
 
     //method to show merge sort
-    mergeSort(container, start, end, startx, starty, nodeid, circleid, gid)
+    mergeSort(startptr, startx, starty, nodeid, circleid, gid, grpShowDelayByParent)
     {
-        
+        if((startptr!=null)&&(startptr.next!=null))
+        {
+            //showing the portion of linked list at specified location
+            this.show(this.parent, startx, starty, nodeid, circleid, gid, startptr, false);
+            
+            //getting the group as an object of my class
+            let g = new SVGGroup(document.getElementById(gid));
+
+            //first hiding it to synchronize animation
+            g.data.setAttribute("visibility", "hidden");
+
+            //declaring necessary variables
+
+            //general variables
+            let nodeCount=0;
+            let ptr = startptr;
+            while(ptr!=null)
+            {
+                nodeCount++;
+                ptr = (ptr.next);
+            }
+            const nodeCountInLeftHalf = Math.floor(nodeCount/2);
+            const nodeCountInRightHalf = nodeCount - nodeCountInLeftHalf;
+            const arrowCountInLeftHalf = nodeCountInLeftHalf + 1;
+            const arrowCountInRightHalf = nodeCountInRightHalf + 1;
+            //end of general variables
+
+            //variables related to co-ordinates
+            const offsety = 80;
+            const leftStartx = startx;
+            const leftStarty = starty + offsety;
+            const rightStartx = leftStartx + (nodeCountInLeftHalf*2*this.r) + arrowCountInLeftHalf*25 + 100;
+            const rightStarty = leftStarty;
+            //end of variables related to co-ordinates
+            
+            //variables related to time
+
+            //after how much seconds of showing the ll to highlight its left half
+            const leftHighlightDelayByGrpShow = 1;
+
+            //after how much seconds of highlighting the left half to show the left half separately
+            const leftShowDelayByLeftHighlight = 1;
+
+            //after how much seconds of showing the ll to show the left half separately
+            const leftShowDelayByGrpShow = leftShowDelayByLeftHighlight + leftHighlightDelayByGrpShow;
+
+            //total time taken by left half from its show till its hiding
+            let leftTimeByLeftShow;
+
+            //after how much seconds of hiding of left half to unhighlight it
+            const leftUnhighlightDelayByLeftTime = 1;
+
+            //after how much seconds of showing the ll to unhighlight its left half
+            let leftUnhighlightDelayByGrpShow; //sum of above three
+
+            //after how much seconds of unhighlighting the left half to highlight the right half
+            const rightHighlightDelayByLeftUnhighlight = 0;
+
+            //after how much seconds of showing the ll to highlight the right half
+            let rightHighlightDelayByGrpShow; //sum of above two
+
+            //after how much seconds of highlighting the right half to show it separately
+            const rightShowDelayByRightHighlight = 1;
+
+            //after how much seconds of showing the ll to show its right half separately
+            let rightShowDelayByGrpShow; //sum of above two
+
+            //total time taken by right half from its show till its hiding
+            let rightTimeByRightShow;
+
+            //after how much seconds of hiding of right half to unhighlight it
+            const rightUnhighlightDelayByRightTime = 1;
+
+            //after how much seconds of showing the ll to unhighlight its right half
+            let rightUnhighlightDelayByGrpShow; //sum of above three
+
+            //after how much seconds of unhighlighting the right half to hide the group
+            const grpHideDelayByRightUnhighlight = 1;
+
+            //after how much seconds of showing the group to hide the group
+            let grpHideDelayByGrpShow; //sum of above two
+
+            //after how much seconds of unhighlighting the right half to start showing the merge animation
+            const mergeShowDelayByRightUnhighlight = 1;
+
+            //after how much seconds of showing the group to start showing the merge animation
+            let mergeShowDelayByGrpShow;
+
+            //merge animation duration
+            const mergeDur = 1;
+
+            //end of variables related to time
+
+            //now adding animation to show this on screen
+            let ganim = g.set({
+                attributeName: "visibility",
+                attributeType: "CSS",
+                from: "hidden",
+                to:"visible",
+                dur: "0.1s",
+                fill: "freeze",
+                begin: gid.slice(0, -1) + "anim.begin+"+grpShowDelayByParent+"s",
+                id: gid + "anim"
+            });
+
+            //now adding animation to highlight the left half of linked list
+            for(let index = 0; index<nodeCountInLeftHalf; index++)
+            {
+                let c = new SVGCircle(document.getElementById(circleid+index));
+                c.set({
+                    attributeName: "fill",
+                    from: "deeppink",
+                    to: "orangered",
+                    dur: "0.1s",
+                    fill: "freeze",
+                    begin: gid+"anim.begin+"+leftHighlightDelayByGrpShow+"s"
+                });
+            }
+
+            //now breaking it into two halves
+            let lptr = startptr;
+            ptr = startptr;
+            for(let i = 0; i<(nodeCountInLeftHalf-1); i++)
+            {
+                ptr = (ptr.next);
+            }
+            let rptr = ptr.next;
+            (ptr.next) = null;
+
+            //sorting the left half
+            //it will return an object as follows:
+            /*
+                {
+                    tot_time: (total time to be taken by it to complete all of its animation starting from displaying the group till hiding it),
+                    driveranim: (animation element on which all other animations after this call depend),
+                    headlink: (the new head),
+                    leaves: (SVGGroup array representing the leaves corresponding to the sorted halves)
+                }
+            */
+            let lefthalfanimobj = this.mergeSort(lptr, leftStartx, leftStarty, nodeid+"l", circleid+"l", gid+"l", leftShowDelayByGrpShow);
+            let leftleaves = lefthalfanimobj.leaves;
+
+            //calculations
+            leftTimeByLeftShow = lefthalfanimobj.tot_time;
+            leftUnhighlightDelayByGrpShow = leftUnhighlightDelayByLeftTime + leftTimeByLeftShow + leftShowDelayByGrpShow;
+            rightHighlightDelayByGrpShow = rightHighlightDelayByLeftUnhighlight + leftUnhighlightDelayByGrpShow;
+            rightShowDelayByGrpShow = rightShowDelayByRightHighlight + rightHighlightDelayByGrpShow;
+
+            //now adding animation to unhighlight the left half
+            for(let index = 0; index<nodeCountInLeftHalf; index++)
+            {
+                let c = new SVGCircle(document.getElementById(circleid+index));
+                c.set({
+                    attributeName: "fill",
+                    from: "orangered",
+                    to: "deeppink",
+                    dur: "0.1s",
+                    fill: "freeze",
+                    begin: gid+"anim.begin+"+leftUnhighlightDelayByGrpShow+"s"
+                });
+            }
+
+            //now adding animation to highlight the right half
+            for(let index = nodeCountInLeftHalf; index<nodeCount; index++)
+            {
+                let c = new SVGCircle(document.getElementById(circleid+index));
+                c.set({
+                    attributeName: "fill",
+                    from: "deeppink",
+                    to: "orangered",
+                    dur: "0.1s",
+                    fill: "freeze",
+                    begin: gid+"anim.begin+"+rightHighlightDelayByGrpShow+"s"
+                });
+            }
+            
+            //now sorting the right half
+            let righthalfanimobj = this.mergeSort(rptr, rightStartx, rightStarty, nodeid+"r", circleid+"r", gid+"r", rightShowDelayByGrpShow);
+            let rightleaves = righthalfanimobj.leaves;
+            
+            //calculations
+            rightTimeByRightShow = righthalfanimobj.tot_time;
+            rightUnhighlightDelayByGrpShow = rightUnhighlightDelayByRightTime + rightTimeByRightShow + rightShowDelayByGrpShow;
+            grpHideDelayByGrpShow = grpHideDelayByRightUnhighlight + rightUnhighlightDelayByGrpShow;
+            mergeShowDelayByGrpShow = mergeShowDelayByRightUnhighlight + rightUnhighlightDelayByGrpShow
+
+            //unhighlighting the right half
+            for(let index = nodeCountInLeftHalf; index<nodeCount; index++)
+            {
+                let c = new SVGCircle(document.getElementById(circleid+index));
+                c.set({
+                    attributeName: "fill",
+                    from: "orangered",
+                    to: "deeppink",
+                    dur: "0.1s",
+                    fill: "freeze",
+                    begin: gid+"anim.begin+"+rightUnhighlightDelayByGrpShow+"s"
+                });
+            }
+
+            //now merging the two halves and adding merge animation
+            lptr = (lefthalfanimobj.headlink);
+            rptr = (righthalfanimobj.headlink);
+            let leaves = [];
+            let index = 0;
+            let leftindex = 0;
+            let rightindex = 0;
+            let newhead;
+
+            //on which circle to move
+            let jispe = document.getElementById(circleid+index);
+
+            //which group to move
+            let jisko;
+            
+            if((lptr.data)<=(rptr.data))
+            {
+                ptr = lptr;
+                newhead = lptr;
+                lptr = (lptr.next);
+
+                //which group to move
+                jisko = leftleaves[leftindex];
+                leaves.push(leftleaves[leftindex++]);
+            }
+            else
+            {
+                ptr = rptr;
+                newhead = rptr;
+                rptr = (rptr.next);
+
+                jisko = rightleaves[rightindex];
+                leaves.push(rightleaves[rightindex++]);
+            }
+
+            //finding relative co-ords to move group
+            let relx = jispe.getAttribute("cx") - jisko.data.querySelector("circle").getAttribute("cx");
+            let rely = jispe.getAttribute("cy") - jisko.data.querySelector("circle").getAttribute("cy");
+
+            //merge animation
+            jisko.animateTransform({
+                attributeName: "transform",
+                attributeType: "XML",
+                type: "translate",
+                // from: "0 0",
+                to: `${relx} ${rely}`,
+                dur: mergeDur,
+                begin: gid+"anim.begin+"+mergeShowDelayByGrpShow+"s",
+                fill: "freeze"
+            });
+            index++;
+
+            while((lptr!=null)&&(rptr!=null))
+            {
+                jispe = document.getElementById(circleid+index);
+
+                if((lptr.data)<=(rptr.data))
+                {
+                    (ptr.next) = lptr;
+                    ptr = (ptr.next);
+                    lptr = (lptr.next);
+
+                    jisko = leftleaves[leftindex];
+                    leaves.push(leftleaves[leftindex++]);
+                }
+                else
+                {
+                    (ptr.next) = rptr;
+                    ptr = (ptr.next);
+                    rptr = (rptr.next);
+
+                    jisko = rightleaves[rightindex];
+                    leaves.push(rightleaves[rightindex++]);
+                }
+                //finding relative co-ords to move group
+                relx = jispe.getAttribute("cx") - jisko.data.querySelector("circle").getAttribute("cx");
+                rely = jispe.getAttribute("cy") - jisko.data.querySelector("circle").getAttribute("cy");
+
+                //merge animation
+                jisko.animateTransform({
+                    attributeName: "transform",
+                    attributeType: "XML",
+                    type: "translate",
+                    // from: "0 0",
+                    to: `${relx} ${rely}`,
+                    dur: mergeDur,
+                    begin: gid+"anim.begin+"+mergeShowDelayByGrpShow+"s",
+                    fill: "freeze"
+                });
+                index++;
+            }
+            if(lptr==null)
+            {
+                (ptr.next) = rptr;
+
+                while(rptr!=null)
+                {
+                    jispe = document.getElementById(circleid+index);
+                    jisko = rightleaves[rightindex];
+
+                    relx = jispe.getAttribute("cx") - jisko.data.querySelector("circle").getAttribute("cx");
+                    rely = jispe.getAttribute("cy") - jisko.data.querySelector("circle").getAttribute("cy");
+
+                    jisko.animateTransform({
+                        attributeName: "transform",
+                        attributeType: "XML",
+                        type: "translate",
+                        // from: "0 0",
+                        to: `${relx} ${rely}`,
+                        dur: mergeDur,
+                        begin: gid+"anim.begin+"+mergeShowDelayByGrpShow+"s",
+                        fill: "freeze"
+                    });
+
+                    leaves.push(rightleaves[rightindex++]);
+                    index++;
+
+                    rptr = (rptr.next);
+                }
+            }
+            else if(rptr==null)
+            {
+                (ptr.next) = lptr;
+                while(lptr!=null)
+                {
+                    jispe = document.getElementById(circleid+index);
+                    jisko = leftleaves[leftindex];
+
+                    relx = jispe.getAttribute("cx") - jisko.data.querySelector("circle").getAttribute("cx");
+                    rely = jispe.getAttribute("cy") - jisko.data.querySelector("circle").getAttribute("cy");
+
+                    jisko.animateTransform({
+                        attributeName: "transform",
+                        attributeType: "XML",
+                        type: "translate",
+                        // from: "0 0",
+                        to: `${relx} ${rely}`,
+                        dur: mergeDur,
+                        begin: gid+"anim.begin+"+mergeShowDelayByGrpShow+"s",
+                        fill: "freeze"
+                    });
+
+                    leaves.push(leftleaves[leftindex++]);
+                    index++;
+
+                    lptr = (lptr.next);
+                }
+            }
+
+            //now hiding the group since its work is done
+            // g.set({
+            //     attributeName: "display",
+            //     attributeType: "CSS",
+            //     from: "initial",
+            //     to:"none",
+            //     dur: "0.1s",
+            //     fill: "freeze",
+            //     begin: gid+"anim.begin+"+grpHideDelayByGrpShow+"s"
+            // });
+
+            //hiding the children since their work is done
+            let leftg = new SVGGroup(document.getElementById(gid+"l"));
+            let rightg = new SVGGroup(document.getElementById(gid+"r"));
+
+            leftg.set({
+                attributeName: "visibility",
+                attributeType: "CSS",
+                to: "hidden",
+                dur: "0.1s",
+                fill: "freeze",
+                begin: gid+"anim.begin+"+mergeShowDelayByGrpShow+"s"
+            });
+
+            rightg.set({
+                attributeName: "visibility",
+                attributeType: "CSS",
+                to: "hidden",
+                dur: "0.1s",
+                fill: "freeze",
+                begin: gid+"anim.begin+"+mergeShowDelayByGrpShow+"s"
+            });
+
+            //now returning
+            return ({
+                tot_time: grpHideDelayByGrpShow,
+                driveranim: ganim,
+                headlink: newhead,
+                leaves: leaves
+            });
+
+        }
+        else if(startptr!=null)
+        {
+            //showing the portion of linked list at specified location
+            this.show(this.parent, startx, starty, nodeid, circleid, gid, startptr, false);
+            
+            //getting the group as an object of my class
+            let g = new SVGGroup(document.getElementById(gid));
+
+            //first hiding it to synchronize animation
+            g.data.setAttribute("visibility", "hidden");
+
+            //now adding animation to show this on screen
+            let ganim = g.set({
+                attributeName: "visibility",
+                attributeType: "CSS",
+                from: "hidden",
+                to:"visible",
+                dur: "0.1s",
+                fill: "freeze",
+                begin: gid.slice(0, -1) + "anim.begin+"+grpShowDelayByParent+"s",
+                id: gid + "anim"
+            });
+
+            //now hiding the group since its work is done
+            // g.set({
+            //     attributeName: "display",
+            //     attributeType: "CSS",
+            //     from: "initial",
+            //     to:"none",
+            //     dur: "0.1s",
+            //     fill: "freeze",
+            //     begin: gid + "anim.begin+1s",
+            //     id: gid + "anim"
+            // });
+
+            let leaf = new SVGGroup(document.getElementById(nodeid+"0"));
+
+            leaf.set({
+                attributeName: "visibility",
+                attributeType: "CSS",
+                from: "hidden",
+                to:"visible",
+                dur: "0.1s",
+                fill: "freeze",
+                begin: gid.slice(0, -1) + "anim.begin+"+grpShowDelayByParent+"s",
+                id: gid + "anim"
+            });
+
+
+            //now returning
+            return ({
+                tot_time: 1,
+                driveranim: ganim,
+                headlink: startptr,
+                leaves: [leaf]
+            });
+        }
     }
 
     //method to console log list for debugging

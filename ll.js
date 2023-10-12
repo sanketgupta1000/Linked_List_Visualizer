@@ -37,6 +37,8 @@ class LinkedList
         this.userinput.type = "number";
         this.userinput.classList = "consoleinput";
         this.userinput.id = "userinput";
+        this.userinput.placeholder="Insert at end/Delete from index";
+        this.userinput.style.width="200px";
         
         //creating input button
         this.insertbtn = document.createElement("input");

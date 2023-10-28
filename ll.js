@@ -604,10 +604,10 @@ class LinkedList
             let newhead;
 
             //on which circle to move
-            let jispe = document.getElementById(circleid+index);
+            let destinationNode = document.getElementById(circleid+index);
 
             //which group to move
-            let jisko;
+            let sourceNode;
             
             if((lptr.data)<=(rptr.data))
             {
@@ -616,7 +616,7 @@ class LinkedList
                 lptr = (lptr.next);
 
                 //which group to move
-                jisko = leftleaves[leftindex];
+                sourceNode = leftleaves[leftindex];
                 leaves.push(leftleaves[leftindex++]);
             }
             else
@@ -625,16 +625,16 @@ class LinkedList
                 newhead = rptr;
                 rptr = (rptr.next);
 
-                jisko = rightleaves[rightindex];
+                sourceNode = rightleaves[rightindex];
                 leaves.push(rightleaves[rightindex++]);
             }
 
             //finding relative co-ords to move group
-            let relx = jispe.getAttribute("cx") - jisko.data.querySelector("circle").getAttribute("cx");
-            let rely = jispe.getAttribute("cy") - jisko.data.querySelector("circle").getAttribute("cy");
+            let relx = destinationNode.getAttribute("cx") - sourceNode.data.querySelector("circle").getAttribute("cx");
+            let rely = destinationNode.getAttribute("cy") - sourceNode.data.querySelector("circle").getAttribute("cy");
 
             //merge animation
-            jisko.animateTransform({
+            sourceNode.animateTransform({
                 attributeName: "transform",
                 attributeType: "XML",
                 type: "translate",
@@ -648,7 +648,7 @@ class LinkedList
 
             while((lptr!=null)&&(rptr!=null))
             {
-                jispe = document.getElementById(circleid+index);
+                destinationNode = document.getElementById(circleid+index);
 
                 if((lptr.data)<=(rptr.data))
                 {
@@ -656,7 +656,7 @@ class LinkedList
                     ptr = (ptr.next);
                     lptr = (lptr.next);
 
-                    jisko = leftleaves[leftindex];
+                    sourceNode = leftleaves[leftindex];
                     leaves.push(leftleaves[leftindex++]);
                 }
                 else
@@ -665,15 +665,15 @@ class LinkedList
                     ptr = (ptr.next);
                     rptr = (rptr.next);
 
-                    jisko = rightleaves[rightindex];
+                    sourceNode = rightleaves[rightindex];
                     leaves.push(rightleaves[rightindex++]);
                 }
                 //finding relative co-ords to move group
-                relx = jispe.getAttribute("cx") - jisko.data.querySelector("circle").getAttribute("cx");
-                rely = jispe.getAttribute("cy") - jisko.data.querySelector("circle").getAttribute("cy");
+                relx = destinationNode.getAttribute("cx") - sourceNode.data.querySelector("circle").getAttribute("cx");
+                rely = destinationNode.getAttribute("cy") - sourceNode.data.querySelector("circle").getAttribute("cy");
 
                 //merge animation
-                jisko.animateTransform({
+                sourceNode.animateTransform({
                     attributeName: "transform",
                     attributeType: "XML",
                     type: "translate",
@@ -691,13 +691,13 @@ class LinkedList
 
                 while(rptr!=null)
                 {
-                    jispe = document.getElementById(circleid+index);
-                    jisko = rightleaves[rightindex];
+                    destinationNode = document.getElementById(circleid+index);
+                    sourceNode = rightleaves[rightindex];
 
-                    relx = jispe.getAttribute("cx") - jisko.data.querySelector("circle").getAttribute("cx");
-                    rely = jispe.getAttribute("cy") - jisko.data.querySelector("circle").getAttribute("cy");
+                    relx = destinationNode.getAttribute("cx") - sourceNode.data.querySelector("circle").getAttribute("cx");
+                    rely = destinationNode.getAttribute("cy") - sourceNode.data.querySelector("circle").getAttribute("cy");
 
-                    jisko.animateTransform({
+                    sourceNode.animateTransform({
                         attributeName: "transform",
                         attributeType: "XML",
                         type: "translate",
@@ -719,13 +719,13 @@ class LinkedList
                 (ptr.next) = lptr;
                 while(lptr!=null)
                 {
-                    jispe = document.getElementById(circleid+index);
-                    jisko = leftleaves[leftindex];
+                    destinationNode = document.getElementById(circleid+index);
+                    sourceNode = leftleaves[leftindex];
 
-                    relx = jispe.getAttribute("cx") - jisko.data.querySelector("circle").getAttribute("cx");
-                    rely = jispe.getAttribute("cy") - jisko.data.querySelector("circle").getAttribute("cy");
+                    relx = destinationNode.getAttribute("cx") - sourceNode.data.querySelector("circle").getAttribute("cx");
+                    rely = destinationNode.getAttribute("cy") - sourceNode.data.querySelector("circle").getAttribute("cy");
 
-                    jisko.animateTransform({
+                    sourceNode.animateTransform({
                         attributeName: "transform",
                         attributeType: "XML",
                         type: "translate",

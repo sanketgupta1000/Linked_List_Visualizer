@@ -743,17 +743,6 @@ class LinkedList
                 }
             }
 
-            //now hiding the group since its work is done
-            // g.set({
-            //     attributeName: "display",
-            //     attributeType: "CSS",
-            //     from: "initial",
-            //     to:"none",
-            //     dur: "0.1s",
-            //     fill: "freeze",
-            //     begin: gid+"anim.begin+"+grpHideDelayByGrpShow+"s"
-            // });
-
             //hiding the children since their work is done
             let leftg = new SVGGroup(document.getElementById(gid+"l"));
             let rightg = new SVGGroup(document.getElementById(gid+"r"));
